@@ -119,6 +119,51 @@ app.post("/api/move", async (req, res) => {
   return res.json(updated);
 });
 
+// Enviar mensagem no chat
+app.post("/api/chat", async (req, res) => {
+  const { gameId, playerId, message } = req.body;
+
+  if (!gameId || !playerId || !message) {
+    return res.status(400).json({ error: "gameId, playerId, and message are required" });
+  }
+
+  const game = games.get(gameId);
+
+  if (!game) {
+    return res.status(404).json({ error: "Game not found" });
+  }
+
+  const player = game.players.find(p => p.id === playerId);
+  if (!player) {
+    return res.status(403).json({ error: "Player not in this game" });
+  }
+
+  const chatMessage = {
+    playerId,
+    nickname: player.nickname,
+    message,
+    timestamp: new Date(),
+  };
+
+  game.chat.push(chatMessage);
+  // Manter apenas as últimas 50 mensagens
+  if (game.chat.length > 50) {
+    game.chat.shift();
+  }
+
+  games.set(gameId, game);
+
+  // Publicar apenas a mensagem do chat, para não reenviar o estado todo
+  try {
+    await ably.channels.get(`game:${gameId}`).publish("chat", chatMessage);
+  } catch (error) {
+    console.error("[ABLY] Erro ao publicar mensagem do chat:", error);
+  }
+
+  return res.status(200).json({ success: true });
+});
+
+
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "ok", games: games.size });

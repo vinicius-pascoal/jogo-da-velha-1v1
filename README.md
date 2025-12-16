@@ -166,7 +166,7 @@ Cliente A                Backend                 Cliente B
 - ✅ Identificar jogadores (X vs O)
 - ✅ Impedir 3º jogador na mesma partida
 - ✅ Sistema de lobby
-- [ ] Chat em tempo real
+- [x] Chat em tempo real
 - [ ] Persistência com Redis
 - [ ] Expiração automática de partidas
 - [ ] Ranking de jogadores

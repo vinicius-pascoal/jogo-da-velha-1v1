@@ -3,17 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Ably from "ably";
-import { GameState } from "@/lib/types";
+import { GameState, ChatMessage } from "@/lib/types";
 import ThemeToggle from "@/components/ThemeToggle";
 import ShareModal from "@/components/ShareModal";
+import ChatBox from "@/components/ChatBox";
 
 export default function GamePage({ params }: { params: { id: string } }) {
   const [game, setGame] = useState<GameState | null>(null);
   const [playerId, setPlayerId] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const router = useRouter();
 
   const gameUrl = typeof window !== "undefined" ? window.location.href : "";
+
 
   useEffect(() => {
     let id = localStorage.getItem("playerId");
@@ -28,6 +31,11 @@ export default function GamePage({ params }: { params: { id: string } }) {
 
     channel.subscribe("state", (msg) => {
       setGame(msg.data);
+      setChatMessages(msg.data.chat || []);
+    });
+
+    channel.subscribe("chat", (msg) => {
+      setChatMessages((prev) => [...prev, msg.data]);
     });
 
     joinGame(id);
@@ -117,8 +125,8 @@ export default function GamePage({ params }: { params: { id: string } }) {
     <>
       <ThemeToggle />
       <ShareModal gameUrl={gameUrl} isOpen={game?.status === "waiting"} />
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300">
-        <div className="max-w-2xl w-full animate-fade-in">
+      <div className="min-h-screen flex flex-col lg:flex-row items-start justify-center gap-4 lg:gap-8 p-4 sm:p-6 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300 py-6 lg:py-12">
+        <div className="w-full max-w-2xl animate-fade-in">
           <div className="text-center mb-6 sm:mb-8">
             <div className="text-4xl sm:text-5xl mb-3 animate-bounce-subtle">⚔️</div>
             <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Jogo da Velha</h1>
@@ -203,13 +211,9 @@ export default function GamePage({ params }: { params: { id: string } }) {
             </div>
           )}
 
-          {myPlayer && !game.winner && (
-            <div className="text-center">
-              <div className="inline-block px-4 py-2 sm:px-6 sm:py-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Você é o jogador <span className={`font-bold text-base sm:text-lg ${myPlayer.symbol === "X" ? "text-blue-600 dark:text-blue-400" : "text-purple-600 dark:text-purple-400"}`}>{myPlayer.symbol}</span></p>
-              </div>
-            </div>
-          )}
+        </div>
+        <div className="w-full max-w-md lg:max-w-sm animate-fade-in lg:sticky lg:top-6">
+          <ChatBox gameId={params.id} playerId={playerId} messages={chatMessages} />
         </div>
       </div>
     </>

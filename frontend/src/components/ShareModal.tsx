@@ -73,8 +73,8 @@ export default function ShareModal({ gameUrl, isOpen }: ShareModalProps) {
             <button
               onClick={copyToClipboard}
               className={`w-full sm:w-auto px-4 py-3 sm:px-6 rounded-xl font-bold transition-all duration-300 ${copied
-                  ? "bg-green-500 text-white"
-                  : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                ? "bg-green-500 text-white"
+                : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
                 }`}
             >
               {copied ? (

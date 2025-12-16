@@ -7,6 +7,13 @@ export interface PlayerInfo {
   joinedAt: string;
 }
 
+export interface ChatMessage {
+  playerId: string;
+  nickname: string;
+  message: string;
+  timestamp: string;
+}
+
 export interface GameState {
   board: (Player | null)[];
   currentPlayer: Player;
@@ -14,4 +21,5 @@ export interface GameState {
   players: PlayerInfo[];
   status: "waiting" | "playing" | "finished";
   createdAt: string;
+  chat: ChatMessage[];
 }
