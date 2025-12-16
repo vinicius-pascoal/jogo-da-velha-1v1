@@ -53,7 +53,7 @@ app.get("/api/lobby", (req, res) => {
 
 // Entrar em uma partida
 app.post("/api/join-game", async (req, res) => {
-  const { gameId, playerId } = req.body;
+  const { gameId, playerId, nickname } = req.body;
 
   if (!gameId || !playerId) {
     return res.status(400).json({ error: "gameId and playerId are required" });
@@ -65,7 +65,7 @@ app.post("/api/join-game", async (req, res) => {
     return res.status(404).json({ error: "Game not found" });
   }
 
-  const updated = addPlayer(game, playerId);
+  const updated = addPlayer(game, playerId, nickname || "Anônimo");
 
   if (!updated) {
     return res.status(400).json({ error: "Cannot join game (full or already joined)" });
@@ -73,7 +73,7 @@ app.post("/api/join-game", async (req, res) => {
 
   games.set(gameId, updated);
 
-  console.log(`[JOIN] Jogador ${playerId} entrou no jogo ${gameId}`);
+  console.log(`[JOIN] Jogador ${nickname || playerId} entrou no jogo ${gameId}`);
 
   // Publicar atualização via Ably
   try {

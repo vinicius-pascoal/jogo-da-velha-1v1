@@ -36,10 +36,12 @@ export default function GamePage({ params }: { params: { id: string } }) {
 
   async function joinGame(pId: string) {
     try {
+      const nickname = localStorage.getItem("playerNickname") || "Anônimo";
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/join-game`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameId: params.id, playerId: pId }),
+        body: JSON.stringify({ gameId: params.id, playerId: pId, nickname }),
       });
 
       if (!res.ok) {
@@ -122,14 +124,18 @@ export default function GamePage({ params }: { params: { id: string } }) {
           }`}>
           <p className="text-sm text-gray-600">Jogador X</p>
           <p className="font-bold text-lg">
-            {game.players[0]?.id === playerId ? "Você" : game.players[0]?.id.slice(0, 8) || "Aguardando..."}
+            {game.players[0]?.id === playerId
+              ? `${game.players[0]?.nickname} (Você)`
+              : game.players[0]?.nickname || "Aguardando..."}
           </p>
         </div>
         <div className={`flex-1 p-4 rounded-lg border-2 ${game.currentPlayer === "O" ? "border-red-500 bg-red-50" : "border-gray-300"
           }`}>
           <p className="text-sm text-gray-600">Jogador O</p>
           <p className="font-bold text-lg">
-            {game.players[1]?.id === playerId ? "Você" : game.players[1]?.id.slice(0, 8) || "Aguardando..."}
+            {game.players[1]?.id === playerId
+              ? `${game.players[1]?.nickname} (Você)`
+              : game.players[1]?.nickname || "Aguardando..."}
           </p>
         </div>
       </div>
@@ -161,10 +167,10 @@ export default function GamePage({ params }: { params: { id: string } }) {
             onClick={() => play(i)}
             disabled={game.status !== "playing" || !!game.winner || !!cell || !isMyTurn}
             className={`w-24 h-24 text-3xl font-bold border-2 rounded-lg transition ${cell === "X"
-                ? "bg-blue-100 text-blue-600 border-blue-300"
-                : cell === "O"
-                  ? "bg-red-100 text-red-600 border-red-300"
-                  : "bg-white border-gray-300 hover:bg-gray-50"
+              ? "bg-blue-100 text-blue-600 border-blue-300"
+              : cell === "O"
+                ? "bg-red-100 text-red-600 border-red-300"
+                : "bg-white border-gray-300 hover:bg-gray-50"
               } disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {cell}

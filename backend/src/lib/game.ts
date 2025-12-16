@@ -2,6 +2,7 @@ export type Player = "X" | "O";
 
 export interface PlayerInfo {
   id: string;
+  nickname: string;
   symbol: Player;
   joinedAt: Date;
 }
@@ -26,7 +27,7 @@ export function createGame(): GameState {
   };
 }
 
-export function addPlayer(game: GameState, playerId: string): GameState | null {
+export function addPlayer(game: GameState, playerId: string, nickname: string): GameState | null {
   // Não permitir mais de 2 jogadores
   if (game.players.length >= 2) {
     return null;
@@ -40,6 +41,7 @@ export function addPlayer(game: GameState, playerId: string): GameState | null {
   const symbol: Player = game.players.length === 0 ? "X" : "O";
   const newPlayer: PlayerInfo = {
     id: playerId,
+    nickname: nickname || `Jogador ${symbol}`,
     symbol,
     joinedAt: new Date(),
   };

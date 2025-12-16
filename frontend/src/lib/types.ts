@@ -2,6 +2,7 @@ export type Player = "X" | "O";
 
 export interface PlayerInfo {
   id: string;
+  nickname: string;
   symbol: Player;
   joinedAt: string;
 }
