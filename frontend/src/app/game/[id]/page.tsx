@@ -97,6 +97,24 @@ export default function GamePage({ params }: { params: { id: string } }) {
     }
   }
 
+  async function restartGame() {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restart-game`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gameId: params.id, playerId }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Erro ao reiniciar jogo");
+        setTimeout(() => setError(""), 2000);
+      }
+    } catch (err) {
+      console.error("Erro ao reiniciar jogo:", err);
+    }
+  }
+
   if (error && !game) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-6 bg-gradient-to-br from-gray-50 via-red-50 to-orange-50 dark:from-gray-900 dark:via-red-950 dark:to-orange-950 p-4 sm:p-6 text-center">
@@ -205,8 +223,21 @@ export default function GamePage({ params }: { params: { id: string } }) {
             <div className="text-center mb-8 animate-slide-up">
               <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 p-6 sm:p-8 rounded-3xl border-2 border-yellow-400 dark:border-yellow-600 shadow-2xl">
                 <div className="text-6xl sm:text-7xl mb-4 animate-bounce-subtle">{game.winner === "draw" ? "🤝" : myPlayer?.symbol === game.winner ? "🎉" : "😢"}</div>
-                <p className="text-2xl sm:text-3xl font-extrabold mb-4 text-gray-900 dark:text-white">{game.winner === "draw" ? "Empate!" : myPlayer?.symbol === game.winner ? "Você Venceu!" : "Você Perdeu!"}</p>
-                <button onClick={() => router.push("/lobby")} className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105 transform">Voltar ao Lobby</button>
+                <p className="text-2xl sm:text-3xl font-extrabold mb-6 text-gray-900 dark:text-white">{game.winner === "draw" ? "Empate!" : myPlayer?.symbol === game.winner ? "Você Venceu!" : "Você Perdeu!"}</p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button 
+                    onClick={restartGame} 
+                    className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105 transform"
+                  >
+                    🔄 Jogar Novamente
+                  </button>
+                  <button 
+                    onClick={() => router.push("/lobby")} 
+                    className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105 transform"
+                  >
+                    Voltar ao Lobby
+                  </button>
+                </div>
               </div>
             </div>
           )}

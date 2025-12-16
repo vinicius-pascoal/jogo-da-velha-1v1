@@ -114,3 +114,13 @@ export function applyMove(
     status: winner ? "finished" : "playing",
   };
 }
+
+export function restartGame(game: GameState): GameState {
+  return {
+    ...game,
+    board: Array(9).fill(null),
+    currentPlayer: "X",
+    winner: null,
+    status: "playing",
+  };
+}

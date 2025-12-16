@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { v4 as uuid } from "uuid";
-import { createGame, applyMove, addPlayer } from "./lib/game";
+import { createGame, applyMove, addPlayer, restartGame } from "./lib/game";
 import { games } from "./lib/store";
 import { ably } from "./lib/ably";
 
@@ -161,6 +161,46 @@ app.post("/api/chat", async (req, res) => {
   }
 
   return res.status(200).json({ success: true });
+});
+
+// Reiniciar partida
+app.post("/api/restart-game", async (req, res) => {
+  const { gameId, playerId } = req.body;
+
+  if (!gameId || !playerId) {
+    return res.status(400).json({ error: "gameId and playerId are required" });
+  }
+
+  const game = games.get(gameId);
+
+  if (!game) {
+    return res.status(404).json({ error: "Game not found" });
+  }
+
+  // Verificar se o jogador está na partida
+  const player = game.players.find(p => p.id === playerId);
+  if (!player) {
+    return res.status(403).json({ error: "Player not in this game" });
+  }
+
+  // Verificar se o jogo terminou
+  if (!game.winner) {
+    return res.status(400).json({ error: "Game is not finished yet" });
+  }
+
+  const updated = restartGame(game);
+  games.set(gameId, updated);
+
+  console.log(`[RESTART] Partida ${gameId} reiniciada por ${player.nickname}`);
+
+  // Publicar atualização via Ably
+  try {
+    await ably.channels.get(`game:${gameId}`).publish("state", updated);
+  } catch (error) {
+    console.error("[ABLY] Erro ao publicar:", error);
+  }
+
+  return res.json(updated);
 });
 
 
