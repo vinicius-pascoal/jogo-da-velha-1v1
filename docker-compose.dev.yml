@@ -29,6 +29,8 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:4000
       - NEXT_PUBLIC_ABLY_KEY=${NEXT_PUBLIC_ABLY_KEY}
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
     networks:

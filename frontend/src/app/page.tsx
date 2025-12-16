@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <main className="h-screen flex flex-col items-center justify-center gap-6 bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="text-center">
-        <h1 className="text-5xl font-bold mb-2">🎮 Jogo da Velha Online</h1>
+        <h1 className="text-5xl font-bold mb-2">Jogo da Velha Online</h1>
         <p className="text-gray-600 text-lg">Multiplayer em tempo real</p>
       </div>
 
@@ -23,15 +23,6 @@ export default function Home() {
         Entrar no Lobby
       </button>
 
-      <div className="mt-8 text-center text-sm text-gray-600 max-w-md">
-        <p>✨ Funcionalidades:</p>
-        <ul className="mt-2 space-y-1">
-          <li>✅ Identificação de jogadores (X e O)</li>
-          <li>✅ Máximo 2 jogadores por partida</li>
-          <li>✅ Sistema de lobby</li>
-          <li>✅ Sincronização em tempo real</li>
-        </ul>
-      </div>
     </main>
   );
 }
