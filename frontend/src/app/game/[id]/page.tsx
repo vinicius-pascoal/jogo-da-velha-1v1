@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Ably from "ably";
 import { GameState } from "@/lib/types";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function GamePage({ params }: { params: { id: string } }) {
   const [game, setGame] = useState<GameState | null>(null);
@@ -12,7 +13,6 @@ export default function GamePage({ params }: { params: { id: string } }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Gerar ou recuperar ID do jogador
     let id = localStorage.getItem("playerId");
     if (!id) {
       id = `player_${Math.random().toString(36).substring(2, 11)}`;
@@ -20,7 +20,6 @@ export default function GamePage({ params }: { params: { id: string } }) {
     }
     setPlayerId(id);
 
-    // Configurar Ably
     const client = new Ably.Realtime(process.env.NEXT_PUBLIC_ABLY_KEY!);
     const channel = client.channels.get(`game:${params.id}`);
 
@@ -28,16 +27,13 @@ export default function GamePage({ params }: { params: { id: string } }) {
       setGame(msg.data);
     });
 
-    // Buscar estado inicial e tentar entrar
     joinGame(id);
-
     return () => client.close();
   }, [params.id]);
 
   async function joinGame(pId: string) {
     try {
       const nickname = localStorage.getItem("playerNickname") || "Anônimo";
-
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/join-game`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,12 +88,10 @@ export default function GamePage({ params }: { params: { id: string } }) {
 
   if (error && !game) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p className="text-xl text-red-600">{error}</p>
-        <button
-          onClick={() => router.push("/lobby")}
-          className="px-6 py-3 bg-black text-white rounded hover:bg-gray-800"
-        >
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6 bg-gradient-to-br from-gray-50 via-red-50 to-orange-50 dark:from-gray-900 dark:via-red-950 dark:to-orange-950 p-6">
+        <div className="text-6xl animate-bounce-subtle">❌</div>
+        <p className="text-2xl font-bold text-red-600 dark:text-red-400">{error}</p>
+        <button onClick={() => router.push("/lobby")} className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105 transform">
           Voltar ao Lobby
         </button>
       </div>
@@ -105,104 +99,115 @@ export default function GamePage({ params }: { params: { id: string } }) {
   }
 
   if (!game) {
-    return <p className="text-center mt-10">Carregando...</p>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950">
+        <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-300 dark:border-gray-600 border-t-blue-600 dark:border-t-blue-400"></div>
+        <p className="text-gray-600 dark:text-gray-400 mt-4 text-lg font-medium">Carregando jogo...</p>
+      </div>
+    );
   }
 
   const myPlayer = game.players.find((p) => p.id === playerId);
   const isMyTurn = myPlayer && game.currentPlayer === myPlayer.symbol;
 
   return (
-    <div className="flex flex-col items-center mt-10 gap-6 p-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-2">Jogo da Velha</h1>
-        <p className="text-sm text-gray-600">Partida #{params.id.slice(0, 8)}</p>
-      </div>
+    <>
+      <ThemeToggle />
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300">
+        <div className="max-w-2xl w-full animate-fade-in">
+          <div className="text-center mb-8">
+            <div className="text-5xl mb-3 animate-bounce-subtle">⚔️</div>
+            <h1 className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Jogo da Velha</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">Partida #{params.id.slice(0, 8)}</p>
+          </div>
 
-      {/* Status dos Jogadores */}
-      <div className="flex gap-4 w-full max-w-md">
-        <div className={`flex-1 p-4 rounded-lg border-2 ${game.currentPlayer === "X" ? "border-blue-500 bg-blue-50" : "border-gray-300"
-          }`}>
-          <p className="text-sm text-gray-600">Jogador X</p>
-          <p className="font-bold text-lg">
-            {game.players[0]?.id === playerId
-              ? `${game.players[0]?.nickname} (Você)`
-              : game.players[0]?.nickname || "Aguardando..."}
-          </p>
-        </div>
-        <div className={`flex-1 p-4 rounded-lg border-2 ${game.currentPlayer === "O" ? "border-red-500 bg-red-50" : "border-gray-300"
-          }`}>
-          <p className="text-sm text-gray-600">Jogador O</p>
-          <p className="font-bold text-lg">
-            {game.players[1]?.id === playerId
-              ? `${game.players[1]?.nickname} (Você)`
-              : game.players[1]?.nickname || "Aguardando..."}
-          </p>
-        </div>
-      </div>
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${game.currentPlayer === "X" ? "border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/50 dark:to-blue-800/50 shadow-lg shadow-blue-500/50 scale-105" : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"}`}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">X</div>
+                <div className="flex-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Jogador X</p>
+                  <p className="font-bold text-lg text-gray-900 dark:text-white truncate">{game.players[0]?.id === playerId ? `${game.players[0]?.nickname} (Você)` : game.players[0]?.nickname || "Aguardando..."}</p>
+                </div>
+              </div>
+              {game.currentPlayer === "X" && !game.winner && (
+                <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 font-semibold">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  Jogando...
+                </div>
+              )}
+            </div>
 
-      {/* Status do Jogo */}
-      {game.status === "waiting" && (
-        <p className="text-lg font-semibold text-yellow-600">
-          ⏳ Aguardando segundo jogador...
-        </p>
-      )}
+            <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${game.currentPlayer === "O" ? "border-purple-500 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/50 dark:to-purple-800/50 shadow-lg shadow-purple-500/50 scale-105" : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"}`}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">O</div>
+                <div className="flex-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Jogador O</p>
+                  <p className="font-bold text-lg text-gray-900 dark:text-white truncate">{game.players[1]?.id === playerId ? `${game.players[1]?.nickname} (Você)` : game.players[1]?.nickname || "Aguardando..."}</p>
+                </div>
+              </div>
+              {game.currentPlayer === "O" && !game.winner && (
+                <div className="flex items-center gap-2 text-xs text-purple-600 dark:text-purple-400 font-semibold">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                  Jogando...
+                </div>
+              )}
+            </div>
+          </div>
 
-      {game.status === "playing" && !game.winner && (
-        <p className="text-lg font-semibold">
-          {isMyTurn ? (
-            <span className="text-green-600">🎯 Sua vez de jogar!</span>
-          ) : (
-            <span className="text-gray-600">⏳ Vez do adversário ({game.currentPlayer})</span>
+          {game.status === "waiting" && (
+            <div className="mb-6 p-4 bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-600 rounded-xl text-center animate-pulse">
+              <p className="text-lg font-bold text-yellow-800 dark:text-yellow-300">⏳ Aguardando segundo jogador entrar...</p>
+            </div>
           )}
-        </p>
-      )}
 
-      {error && <p className="text-red-600 font-semibold">{error}</p>}
+          {game.status === "playing" && !game.winner && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 border-2 border-blue-400 dark:border-blue-600 rounded-xl text-center">
+              <p className="text-lg font-bold text-gray-900 dark:text-white">
+                {isMyTurn ? (
+                  <span className="flex items-center justify-center gap-2"><span className="text-2xl">🎯</span>Sua vez de jogar!</span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2"><span className="text-2xl">⏳</span>Aguardando jogada do adversário</span>
+                )}
+              </p>
+            </div>
+          )}
 
-      {/* Tabuleiro */}
-      <div className="grid grid-cols-3 gap-2">
-        {game.board.map((cell, i) => (
-          <button
-            key={i}
-            onClick={() => play(i)}
-            disabled={game.status !== "playing" || !!game.winner || !!cell || !isMyTurn}
-            className={`w-24 h-24 text-3xl font-bold border-2 rounded-lg transition ${cell === "X"
-              ? "bg-blue-100 text-blue-600 border-blue-300"
-              : cell === "O"
-                ? "bg-red-100 text-red-600 border-red-300"
-                : "bg-white border-gray-300 hover:bg-gray-50"
-              } disabled:cursor-not-allowed disabled:opacity-50`}
-          >
-            {cell}
-          </button>
-        ))}
+          {error && (
+            <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border-2 border-red-400 dark:border-red-600 rounded-xl text-center animate-slide-up">
+              <p className="text-lg font-bold text-red-800 dark:text-red-300">⚠️ {error}</p>
+            </div>
+          )}
+
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl mb-8 border border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-3 gap-3">
+              {game.board.map((cell, i) => (
+                <button key={i} onClick={() => play(i)} disabled={game.status !== "playing" || !!game.winner || !!cell || !isMyTurn} className={`aspect-square text-5xl font-bold border-2 rounded-2xl transition-all duration-300 ${cell === "X" ? "bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 text-blue-600 dark:text-blue-300 border-blue-300 dark:border-blue-600 shadow-lg" : cell === "O" ? "bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 text-purple-600 dark:text-purple-300 border-purple-300 dark:border-purple-600 shadow-lg" : "bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:scale-105 active:scale-95"} disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100`}>
+                  {cell}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {game.winner && (
+            <div className="text-center mb-8 animate-slide-up">
+              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 p-8 rounded-3xl border-2 border-yellow-400 dark:border-yellow-600 shadow-2xl">
+                <div className="text-7xl mb-4 animate-bounce-subtle">{game.winner === "draw" ? "🤝" : myPlayer?.symbol === game.winner ? "🎉" : "😢"}</div>
+                <p className="text-3xl font-extrabold mb-4 text-gray-900 dark:text-white">{game.winner === "draw" ? "Empate!" : myPlayer?.symbol === game.winner ? "Você Venceu!" : "Você Perdeu!"}</p>
+                <button onClick={() => router.push("/lobby")} className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105 transform">Voltar ao Lobby</button>
+              </div>
+            </div>
+          )}
+
+          {myPlayer && !game.winner && (
+            <div className="text-center">
+              <div className="inline-block px-6 py-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Você é o jogador <span className={`font-bold text-lg ${myPlayer.symbol === "X" ? "text-blue-600 dark:text-blue-400" : "text-purple-600 dark:text-purple-400"}`}>{myPlayer.symbol}</span></p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Resultado */}
-      {game.winner && (
-        <div className="text-center">
-          <p className="text-2xl font-bold mb-4">
-            {game.winner === "draw"
-              ? "🤝 Empate!"
-              : myPlayer?.symbol === game.winner
-                ? "🎉 Você venceu!"
-                : "😢 Você perdeu!"}
-          </p>
-          <button
-            onClick={() => router.push("/lobby")}
-            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800"
-          >
-            Voltar ao Lobby
-          </button>
-        </div>
-      )}
-
-      {/* Informações do Jogador */}
-      {myPlayer && (
-        <div className="mt-4 text-center text-sm text-gray-600">
-          <p>Você é o jogador <span className="font-bold">{myPlayer.symbol}</span></p>
-        </div>
-      )}
-    </div>
+    </>
   );
 }

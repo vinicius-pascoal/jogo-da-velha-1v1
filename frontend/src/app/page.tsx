@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Home() {
   const router = useRouter();
@@ -10,19 +11,46 @@ export default function Home() {
   }
 
   return (
-    <main className="h-screen flex flex-col items-center justify-center gap-6 bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold mb-2">Jogo da Velha Online</h1>
-        <p className="text-gray-600 text-lg">Multiplayer em tempo real</p>
-      </div>
+    <>
+      <ThemeToggle />
+      <main className="h-screen flex flex-col items-center justify-center gap-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300">
+        <div className="text-center animate-fade-in">
+          <div className="mb-6">
+            <div className="text-7xl mb-4 animate-bounce-subtle">🎮</div>
+          </div>
+          <h1 className="text-6xl font-extrabold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+            Jogo da Velha Online
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 text-xl font-medium">
+            Multiplayer em tempo real com seus amigos
+          </p>
+        </div>
 
-      <button
-        onClick={goToLobby}
-        className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transition font-semibold text-lg shadow-lg"
-      >
-        Entrar no Lobby
-      </button>
-
-    </main>
+        <div className="flex flex-col gap-4 animate-slide-up">
+          <button
+            onClick={goToLobby}
+            className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-xl shadow-2xl hover:shadow-blue-500/50 dark:shadow-blue-900/50 hover:scale-105 transform"
+          >
+            <span className="relative z-10 flex items-center gap-3">
+              Entrar no Lobby
+              <svg
+                className="w-6 h-6 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </span>
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity blur-xl"></div>
+          </button>
+        </div>
+      </main>
+    </>
   );
 }
