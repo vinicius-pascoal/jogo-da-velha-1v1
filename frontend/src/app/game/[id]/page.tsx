@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import Ably from "ably";
 import { GameState } from "@/lib/types";
 import ThemeToggle from "@/components/ThemeToggle";
+import ShareModal from "@/components/ShareModal";
 
 export default function GamePage({ params }: { params: { id: string } }) {
   const [game, setGame] = useState<GameState | null>(null);
   const [playerId, setPlayerId] = useState<string>("");
   const [error, setError] = useState<string>("");
   const router = useRouter();
+
+  const gameUrl = typeof window !== "undefined" ? window.location.href : "";
 
   useEffect(() => {
     let id = localStorage.getItem("playerId");
@@ -113,6 +116,7 @@ export default function GamePage({ params }: { params: { id: string } }) {
   return (
     <>
       <ThemeToggle />
+      <ShareModal gameUrl={gameUrl} isOpen={game?.status === "waiting"} />
       <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300">
         <div className="max-w-2xl w-full animate-fade-in">
           <div className="text-center mb-8">
