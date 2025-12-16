@@ -13,15 +13,15 @@ export default function Home() {
   return (
     <>
       <ThemeToggle />
-      <main className="h-screen flex flex-col items-center justify-center gap-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300">
+      <main className="min-h-screen flex flex-col items-center justify-center gap-8 p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300">
         <div className="text-center animate-fade-in">
           <div className="mb-6">
-            <div className="text-7xl mb-4 animate-bounce-subtle">🎮</div>
+            <div className="text-6xl sm:text-7xl mb-4 animate-bounce-subtle">🎮</div>
           </div>
-          <h1 className="text-6xl font-extrabold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-6xl font-extrabold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
             Jogo da Velha Online
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 text-xl font-medium">
+          <p className="text-gray-600 dark:text-gray-300 text-lg sm:text-xl font-medium">
             Multiplayer em tempo real com seus amigos
           </p>
         </div>
@@ -29,7 +29,7 @@ export default function Home() {
         <div className="flex flex-col gap-4 animate-slide-up">
           <button
             onClick={goToLobby}
-            className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-xl shadow-2xl hover:shadow-blue-500/50 dark:shadow-blue-900/50 hover:scale-105 transform"
+            className="group relative px-8 py-4 text-lg sm:px-10 sm:py-5 sm:text-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold shadow-2xl hover:shadow-blue-500/50 dark:shadow-blue-900/50 hover:scale-105 transform"
           >
             <span className="relative z-10 flex items-center gap-3">
               Entrar no Lobby

@@ -46,14 +46,14 @@ export default function ShareModal({ gameUrl, isOpen }: ShareModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-200 dark:border-gray-700 animate-slide-up">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-200 dark:border-gray-700 animate-slide-up">
         <div className="text-center mb-6">
-          <div className="text-5xl mb-4 animate-bounce-subtle">⏳</div>
-          <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
+          <div className="text-4xl sm:text-5xl mb-4 animate-bounce-subtle">⏳</div>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900 dark:text-white">
             Aguardando Jogador
           </h2>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
             Compartilhe o link ou QR code para convidar alguém
           </p>
         </div>
@@ -63,7 +63,7 @@ export default function ShareModal({ gameUrl, isOpen }: ShareModalProps) {
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Link da Partida
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={gameUrl}
@@ -72,13 +72,13 @@ export default function ShareModal({ gameUrl, isOpen }: ShareModalProps) {
             />
             <button
               onClick={copyToClipboard}
-              className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 ${copied
+              className={`w-full sm:w-auto px-4 py-3 sm:px-6 rounded-xl font-bold transition-all duration-300 ${copied
                   ? "bg-green-500 text-white"
                   : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
                 }`}
             >
               {copied ? (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center justify-center gap-2">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -95,7 +95,7 @@ export default function ShareModal({ gameUrl, isOpen }: ShareModalProps) {
                   Copiado!
                 </span>
               ) : (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center justify-center gap-2">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -117,11 +117,11 @@ export default function ShareModal({ gameUrl, isOpen }: ShareModalProps) {
         </div>
 
         {/* QR Code */}
-        <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 flex flex-col items-center">
+        <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 flex flex-col items-center">
           <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
             Escaneie o QR Code
           </p>
-          <div className="bg-white p-4 rounded-lg">
+          <div className="bg-white p-2 sm:p-4 rounded-lg">
             <canvas ref={canvasRef} className="max-w-full" />
           </div>
         </div>
