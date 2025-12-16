@@ -1,0 +1,28 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Build args para variáveis de ambiente Next.js
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_ABLY_KEY
+
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_ABLY_KEY=$NEXT_PUBLIC_ABLY_KEY
+
+# Copiar package.json e instalar dependências
+COPY package.json ./
+RUN npm install
+
+# Copiar configurações
+COPY next.config.js ./
+COPY tailwind.config.ts ./
+COPY postcss.config.js ./
+COPY tsconfig.json ./
+
+# Copiar código fonte
+COPY . .
+
+EXPOSE 3000
+
+# O comando será sobrescrito pelo docker-compose
+CMD ["npm", "run", "dev"]

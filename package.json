@@ -1,0 +1,27 @@
+{
+  "name": "jogo-da-velha-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Jogo da velha multiplayer em tempo real - Monorepo",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
+    "docker:dev:down": "docker-compose -f docker-compose.dev.yml down",
+    "docker:prod": "docker-compose up --build",
+    "docker:prod:down": "docker-compose down",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "keywords": [
+    "tic-tac-toe",
+    "multiplayer",
+    "realtime",
+    "next.js",
+    "express",
+    "ably"
+  ],
+  "author": "",
+  "license": "MIT"
+}
