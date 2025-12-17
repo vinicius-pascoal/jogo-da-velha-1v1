@@ -22,9 +22,10 @@ export interface GameState {
   status: "waiting" | "playing" | "finished";
   createdAt: Date;
   chat: ChatMessage[];
+  gameMode: "pvp" | "bot";
 }
 
-export function createGame(): GameState {
+export function createGame(gameMode: "pvp" | "bot" = "pvp"): GameState {
   return {
     board: Array(9).fill(null),
     currentPlayer: "X",
@@ -33,6 +34,7 @@ export function createGame(): GameState {
     status: "waiting",
     createdAt: new Date(),
     chat: [],
+    gameMode,
   };
 }
 

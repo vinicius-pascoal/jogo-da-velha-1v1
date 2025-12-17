@@ -22,4 +22,5 @@ export interface GameState {
   status: "waiting" | "playing" | "finished";
   createdAt: string;
   chat: ChatMessage[];
+  gameMode: "pvp" | "bot";
 }

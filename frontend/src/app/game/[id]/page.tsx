@@ -142,12 +142,16 @@ export default function GamePage({ params }: { params: { id: string } }) {
   return (
     <>
       <ThemeToggle />
-      <ShareModal gameUrl={gameUrl} isOpen={game?.status === "waiting"} />
+      {game?.gameMode === "pvp" && <ShareModal gameUrl={gameUrl} isOpen={game?.status === "waiting"} />}
       <div className="min-h-screen flex flex-col lg:flex-row items-start justify-center gap-4 lg:gap-8 p-4 sm:p-6 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300 py-6 lg:py-12">
         <div className="w-full max-w-2xl animate-fade-in">
           <div className="text-center mb-6 sm:mb-8">
-            <div className="text-4xl sm:text-5xl mb-3 animate-bounce-subtle">⚔️</div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Jogo da Velha</h1>
+            <div className="text-4xl sm:text-5xl mb-3 animate-bounce-subtle">
+              {game?.gameMode === "bot" ? "🤖" : "⚔️"}
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+              {game?.gameMode === "bot" ? "Jogo contra Bot" : "Jogo da Velha"}
+            </h1>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-mono">Partida #{params.id.slice(0, 8)}</p>
           </div>
 
@@ -225,14 +229,14 @@ export default function GamePage({ params }: { params: { id: string } }) {
                 <div className="text-6xl sm:text-7xl mb-4 animate-bounce-subtle">{game.winner === "draw" ? "🤝" : myPlayer?.symbol === game.winner ? "🎉" : "😢"}</div>
                 <p className="text-2xl sm:text-3xl font-extrabold mb-6 text-gray-900 dark:text-white">{game.winner === "draw" ? "Empate!" : myPlayer?.symbol === game.winner ? "Você Venceu!" : "Você Perdeu!"}</p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <button 
-                    onClick={restartGame} 
+                  <button
+                    onClick={restartGame}
                     className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105 transform"
                   >
                     🔄 Jogar Novamente
                   </button>
-                  <button 
-                    onClick={() => router.push("/lobby")} 
+                  <button
+                    onClick={() => router.push("/lobby")}
                     className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105 transform"
                   >
                     Voltar ao Lobby
@@ -243,9 +247,11 @@ export default function GamePage({ params }: { params: { id: string } }) {
           )}
 
         </div>
-        <div className="w-full max-w-md lg:max-w-sm animate-fade-in lg:sticky lg:top-6">
-          <ChatBox gameId={params.id} playerId={playerId} messages={chatMessages} />
-        </div>
+        {game?.gameMode === "pvp" && (
+          <div className="w-full max-w-md lg:max-w-sm animate-fade-in lg:sticky lg:top-6">
+            <ChatBox gameId={params.id} playerId={playerId} messages={chatMessages} />
+          </div>
+        )}
       </div>
     </>
   );

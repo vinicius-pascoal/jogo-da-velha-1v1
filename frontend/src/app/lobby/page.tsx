@@ -9,6 +9,7 @@ interface LobbyGame {
   id: string;
   players: number;
   createdAt: string;
+  gameMode: "pvp" | "bot";
 }
 
 export default function LobbyPage() {
@@ -48,6 +49,14 @@ export default function LobbyPage() {
     router.push(`/game/${gameId}`);
   }
 
+  async function createBotGame() {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/create-bot-game`, {
+      method: "POST",
+    });
+    const { gameId } = await res.json();
+    router.push(`/game/${gameId}`);
+  }
+
   function joinGame(gameId: string) {
     router.push(`/game/${gameId}`);
   }
@@ -59,7 +68,7 @@ export default function LobbyPage() {
 
   return (
     <>
-      <NicknameModal onSave={setNickname} />
+      <NicknameModal onConfirm={setNickname} />
       <ThemeToggle />
 
       <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950 transition-colors duration-300">
@@ -132,7 +141,8 @@ export default function LobbyPage() {
                         #{game.id.slice(0, 2)}
                       </div>
                       <div className="flex-1 overflow-hidden">
-                        <p className="font-bold text-base sm:text-lg text-gray-900 dark:text-white truncate">
+                        <p className="font-bold text-base sm:text-lg text-gray-900 dark:text-white truncate flex items-center gap-2">
+                          {game.gameMode === "bot" && <span className="text-xl">🤖</span>}
                           Partida #{game.id.slice(0, 8)}
                         </p>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 mt-1">
@@ -141,6 +151,11 @@ export default function LobbyPage() {
                             <span className="font-semibold">
                               {game.players}/2 jogadores
                             </span>
+                            {game.gameMode === "bot" && (
+                              <span className="ml-2 px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs font-bold">
+                                vs Bot
+                              </span>
+                            )}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-500 flex items-center gap-1">
                             <span>🕐</span>
@@ -162,29 +177,41 @@ export default function LobbyPage() {
             )}
           </div>
 
-          {/* Create Game Button */}
-          <button
-            onClick={createGame}
-            className="group w-full px-6 py-4 sm:px-8 sm:py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-lg sm:text-xl shadow-2xl hover:shadow-blue-500/50 dark:shadow-blue-900/50 hover:scale-[1.02] transform"
-          >
-            <span className="flex items-center justify-center gap-3">
-              <span className="text-xl sm:text-2xl">➕</span>
-              Criar Nova Partida
-              <svg
-                className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </span>
-          </button>
+          {/* Create Game Buttons */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button
+              onClick={createGame}
+              className="group w-full px-6 py-4 sm:px-8 sm:py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-lg sm:text-xl shadow-2xl hover:shadow-blue-500/50 dark:shadow-blue-900/50 hover:scale-[1.02] transform"
+            >
+              <span className="flex items-center justify-center gap-3">
+                <span className="text-xl sm:text-2xl">➕</span>
+                Criar Partida PvP
+                <svg
+                  className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              </span>
+            </button>
+
+            <button
+              onClick={createBotGame}
+              className="group w-full px-6 py-4 sm:px-8 sm:py-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-bold text-lg sm:text-xl shadow-2xl hover:shadow-green-500/50 dark:shadow-green-900/50 hover:scale-[1.02] transform"
+            >
+              <span className="flex items-center justify-center gap-3">
+                <span className="text-xl sm:text-2xl">🤖</span>
+                Criar Partida vs Bot
+              </span>
+            </button>
+          </div>
 
           {/* Auto-update info */}
           <div className="text-center mt-6 flex items-center justify-center gap-2">

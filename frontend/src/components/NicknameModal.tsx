@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 
 interface NicknameModalProps {
-  onSave: (nickname: string) => void;
+  onConfirm: (nickname: string) => void;
+  onCancel?: () => void;
 }
 
-export default function NicknameModal({ onSave }: NicknameModalProps) {
+export default function NicknameModal({ onConfirm, onCancel }: NicknameModalProps) {
   const [nickname, setNickname] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -15,16 +16,21 @@ export default function NicknameModal({ onSave }: NicknameModalProps) {
     if (!saved) {
       setIsOpen(true);
     } else {
-      onSave(saved);
+      onConfirm(saved);
     }
-  }, [onSave]);
+  }, [onConfirm]);
 
   const handleSave = () => {
     if (nickname.trim()) {
       localStorage.setItem("playerNickname", nickname.trim());
-      onSave(nickname.trim());
+      onConfirm(nickname.trim());
       setIsOpen(false);
     }
+  };
+
+  const handleCancel = () => {
+    setIsOpen(false);
+    onCancel?.();
   };
 
   if (!isOpen) return null;
@@ -60,6 +66,15 @@ export default function NicknameModal({ onSave }: NicknameModalProps) {
         >
           Começar a Jogar 🎮
         </button>
+
+        {onCancel && (
+          <button
+            onClick={handleCancel}
+            className="w-full mt-3 px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors font-semibold"
+          >
+            Cancelar
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,13 +1,40 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
+import NicknameModal from "@/components/NicknameModal";
 
 export default function Home() {
   const router = useRouter();
+  const [showNicknameModal, setShowNicknameModal] = useState(false);
 
   function goToLobby() {
     router.push("/lobby");
+  }
+
+  async function createBotGame(nickname: string) {
+    try {
+      const res = await fetch("http://localhost:4000/api/create-bot-game", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.gameId) {
+        router.push(`/game/${data.gameId}`);
+      } else {
+        console.error("Erro ao criar jogo contra bot:", data.error);
+        alert("Erro ao criar jogo contra bot");
+      }
+    } catch (error) {
+      console.error("Erro ao criar jogo contra bot:", error);
+      alert("Erro ao criar jogo contra bot");
+    }
+  }
+
+  function handlePlayAgainstBot() {
+    setShowNicknameModal(true);
   }
 
   return (
@@ -22,7 +49,7 @@ export default function Home() {
             Jogo da Velha Online
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-lg sm:text-xl font-medium">
-            Multiplayer em tempo real com seus amigos
+            Multiplayer em tempo real ou jogue contra o bot
           </p>
         </div>
 
@@ -51,6 +78,16 @@ export default function Home() {
           </button>
         </div>
       </main>
+
+      {showNicknameModal && (
+        <NicknameModal
+          onConfirm={(nickname) => {
+            setShowNicknameModal(false);
+            createBotGame(nickname);
+          }}
+          onCancel={() => setShowNicknameModal(false)}
+        />
+      )}
     </>
   );
 }

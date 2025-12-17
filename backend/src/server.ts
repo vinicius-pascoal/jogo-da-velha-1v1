@@ -5,6 +5,7 @@ import { v4 as uuid } from "uuid";
 import { createGame, applyMove, addPlayer, restartGame } from "./lib/game";
 import { games } from "./lib/store";
 import { ably } from "./lib/ably";
+import { getBotMove, isBotTurn } from "./lib/bot";
 
 dotenv.config();
 
@@ -14,14 +15,26 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-// Criar nova partida
+// Criar nova partida PvP
 app.post("/api/create-game", (req, res) => {
   const id = uuid();
-  const game = createGame();
+  const game = createGame("pvp");
 
   games.set(id, game);
 
-  console.log(`[CREATE] Nova partida criada: ${id}`);
+  console.log(`[CREATE] Nova partida PvP criada: ${id}`);
+
+  return res.json({ gameId: id });
+});
+
+// Criar nova partida contra Bot
+app.post("/api/create-bot-game", (req, res) => {
+  const id = uuid();
+  const game = createGame("bot");
+
+  games.set(id, game);
+
+  console.log(`[CREATE] Nova partida contra Bot criada: ${id}`);
 
   return res.json({ gameId: id });
 });
@@ -46,6 +59,7 @@ app.get("/api/lobby", (req, res) => {
       id,
       players: game.players.length,
       createdAt: game.createdAt,
+      gameMode: game.gameMode,
     }));
 
   return res.json(availableGames);
@@ -72,6 +86,25 @@ app.post("/api/join-game", async (req, res) => {
   }
 
   games.set(gameId, updated);
+
+  // Se for jogo contra bot e ainda não tiver o bot, adicionar automaticamente
+  if (updated.gameMode === "bot" && updated.players.length === 1) {
+    const withBot = addPlayer(updated, "bot", "🤖 Bot");
+    if (withBot) {
+      games.set(gameId, withBot);
+      console.log(`[BOT] Bot adicionado automaticamente ao jogo ${gameId}`);
+
+      // Publicar atualização com bot via Ably
+      try {
+        await ably.channels.get(`game:${gameId}`).publish("state", withBot);
+      } catch (error) {
+        console.error("[ABLY] Erro ao publicar:", error);
+      }
+
+      console.log(`[JOIN] Jogador ${nickname || playerId} entrou no jogo ${gameId}`);
+      return res.json(withBot);
+    }
+  }
 
   console.log(`[JOIN] Jogador ${nickname || playerId} entrou no jogo ${gameId}`);
 
@@ -114,6 +147,29 @@ app.post("/api/move", async (req, res) => {
     await ably.channels.get(`game:${gameId}`).publish("state", updated);
   } catch (error) {
     console.error("[ABLY] Erro ao publicar:", error);
+  }
+
+  // Se for jogo contra bot e for a vez do bot, fazer jogada automática
+  if (updated.gameMode === "bot" && isBotTurn(updated)) {
+    setTimeout(async () => {
+      const currentGame = games.get(gameId);
+      if (!currentGame || !isBotTurn(currentGame)) return;
+
+      try {
+        const botMoveIndex = getBotMove(currentGame);
+        const botUpdated = applyMove(currentGame, botMoveIndex, "bot");
+
+        if (botUpdated) {
+          games.set(gameId, botUpdated);
+          console.log(`[BOT] Bot jogou no ${gameId}, posição ${botMoveIndex}`);
+
+          // Publicar jogada do bot
+          await ably.channels.get(`game:${gameId}`).publish("state", botUpdated);
+        }
+      } catch (error) {
+        console.error("[BOT] Erro ao fazer jogada:", error);
+      }
+    }, 500); // Delay de 500ms para simular "pensamento" do bot
   }
 
   return res.json(updated);
